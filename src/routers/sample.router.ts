@@ -2,6 +2,6 @@ import { Router } from "express";
 import { findSample } from "../controllers/sample.controller";
 const router = Router()
 
-router.get('/', findSample)
+router.post('/', findSample)
 
 export default router
