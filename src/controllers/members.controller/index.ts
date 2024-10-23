@@ -4,7 +4,7 @@ import { v4 as uuid } from "uuid";
 
 export const getMembers = async(req: Request, res: Response) => {
     try {
-        const { search, idSearch, page = 1, limit_data = 5 } = req.query
+        const { search, page = 1, limit_data = 5 } = req.query
         let members;
         const offset = Number(limit_data) * (Number(page) - 1)
 
@@ -13,15 +13,10 @@ export const getMembers = async(req: Request, res: Response) => {
                 'SELECT * FROM members LIMIT ? OFFSET ?',
                 [Number(limit_data), offset]
             )
-        } else if(search && !idSearch) {
+        } else if(search) {
             members = await querySql(
                 'SELECT * FROM members WHERE id LIKE ? or name LIKE ? or email LIKE ? LIMIT ? OFFSET ?',
                 [search, search, search, Number(limit_data), offset]
-            )
-        } else if(idSearch && !search) {
-            members = await querySql(
-                'SELECT * FROM MEMBERS WHERE id LIKE ?',
-                [idSearch]
             )
         }
         
@@ -93,9 +88,27 @@ export const createMember = async(req: Request, res: Response) => {
     }
 }
 
-export const countMembers = async(req: Request, res: Response) => {
-    const membersNum = await querySql(
-        'SELECT COUNT(*) FROM members',
-        []
-    )
+export const searchMembers = async(req: Request, res: Response) => {
+    try {
+        const { data } = req.query
+    
+        const members = await querySql(
+            'SELECT * FROM members WHERE id LIKE ? OR first_name LIKE ? OR last_name LIKE ? OR email LIKE ?',
+            [`%${data}%`, `%${data}%`, `%${data}%`, `%${data}%`]
+        )
+        
+        console.log(members)
+        res.status(200).json({
+            error: false,
+            message: 'Get members by search success',
+            data: members
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: false,
+            message: 'Get members by search success',
+            data: []
+        })
+        
+    }
 }

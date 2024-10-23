@@ -9,18 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBooks = void 0;
+exports.getBooksBySearch = void 0;
 const query_sql_1 = require("../../util/query.sql");
-const getBooks = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getBooksBySearch = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { search } = req.body;
-        let books;
-        if (!search) {
-            books = yield (0, query_sql_1.querySql)('SELECT * FROM books', []);
-        }
-        else {
-            books = yield (0, query_sql_1.querySql)('SELECT * FROM books WHERE title LIKE ? or author LIKE ?', [search, search]);
-        }
+        const { data } = req.query;
+        const books = yield (0, query_sql_1.querySql)('SELECT * FROM books WHERE title LIKE ? or author LIKE ?', [`%${data}%`, `%${data}%`]);
         res.status(200).json({
             error: false,
             message: 'Get books data success',
@@ -35,4 +29,4 @@ const getBooks = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
 });
-exports.getBooks = getBooks;
+exports.getBooksBySearch = getBooksBySearch;

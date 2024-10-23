@@ -1,22 +1,13 @@
 import { Request, Response } from "express";
 import { querySql } from "../../util/query.sql";
 
-export const getBooks = async(req: Request, res: Response) => {
+export const getBooksBySearch = async(req: Request, res: Response) => {
     try {
-        const { search } = req.body
-        let books;
-        
-        if(!search) {
-            books = await querySql(
-                'SELECT * FROM books',
-                []
-            )
-        } else {
-            books = await querySql(
-                'SELECT * FROM books WHERE title LIKE ? or author LIKE ?',
-                [search, search]
-            )
-        }
+        const { data } = req.query
+        const books = await querySql(
+            'SELECT * FROM books WHERE title LIKE ? or author LIKE ?',
+            [`%${data}%`, `%${data}%`]
+        );
     
         res.status(200).json({
             error: false,

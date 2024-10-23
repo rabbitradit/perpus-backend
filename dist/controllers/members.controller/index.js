@@ -9,22 +9,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.countMembers = exports.createMember = exports.getMembers = void 0;
+exports.searchMembers = exports.createMember = exports.getMembers = void 0;
 const query_sql_1 = require("../../util/query.sql");
 const uuid_1 = require("uuid");
 const getMembers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { search, idSearch, page = 1, limit_data = 5 } = req.query;
+        const { search, page = 1, limit_data = 5 } = req.query;
         let members;
         const offset = Number(limit_data) * (Number(page) - 1);
         if (!search) {
             members = yield (0, query_sql_1.querySql)('SELECT * FROM members LIMIT ? OFFSET ?', [Number(limit_data), offset]);
         }
-        else if (search && !idSearch) {
+        else if (search) {
             members = yield (0, query_sql_1.querySql)('SELECT * FROM members WHERE id LIKE ? or name LIKE ? or email LIKE ? LIMIT ? OFFSET ?', [search, search, search, Number(limit_data), offset]);
-        }
-        else if (idSearch && !search) {
-            members = yield (0, query_sql_1.querySql)('SELECT * FROM MEMBERS WHERE id LIKE ?', [idSearch]);
         }
         const totalData = yield (0, query_sql_1.querySql)('SELECT COUNT(*) as totalData FROM members', []);
         const totalPage = Math.ceil(totalData[0].totalData);
@@ -79,7 +76,23 @@ const createMember = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.createMember = createMember;
-const countMembers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const membersNum = yield (0, query_sql_1.querySql)('SELECT COUNT(*) FROM members', []);
+const searchMembers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { data } = req.query;
+        const members = yield (0, query_sql_1.querySql)('SELECT * FROM members WHERE id LIKE ? OR first_name LIKE ? OR last_name LIKE ? OR email LIKE ?', [`%${data}%`, `%${data}%`, `%${data}%`, `%${data}%`]);
+        console.log(members);
+        res.status(200).json({
+            error: false,
+            message: 'Get members by search success',
+            data: members
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            error: false,
+            message: 'Get members by search success',
+            data: []
+        });
+    }
 });
-exports.countMembers = countMembers;
+exports.searchMembers = searchMembers;
